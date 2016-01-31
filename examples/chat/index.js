@@ -136,7 +136,7 @@ io.on('connection', function (socket) {
       var partieCourante = {
         id: getRandomId(),
         joueur1: joueurCourant,
-        joueur2: joueurAttente.pop(),
+        joueur2: joueurAttente.shift(),
         motADeviner: mots[Math.floor(Math.random()*3)],
         nombreIndice: 1,
         etat: "", // Inactif ? Deco ?
@@ -177,7 +177,7 @@ io.on('connection', function (socket) {
       });
 
       socket.broadcast.to(partieCourante.joueur1.id).emit('donner_indice', partieCourante.nombreIndice);
-      
+
     }
     socket.id = tmpSocketId;
 
