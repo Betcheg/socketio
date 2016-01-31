@@ -10,7 +10,7 @@ A corriger plus tard.
 # Installer le jeu
 
 ```
-$ cd socketio # se mettre à la racine du rep
+$ cd socketio # se mettre à la racine du repertoire
 $ npm install
 $ cd examples/chat
 $ npm install
@@ -19,7 +19,7 @@ $ node . # Pour lancer le serveur et ecouter sur le port 3000
 
 # Jouer
 
-Mettre tout le repertoire socketio à la racine de /var/www
+Mettre tout le repertoire socketio dans /var/www/
 
 Aller sur `http://localhost:3000` si le serveur est local.
 
