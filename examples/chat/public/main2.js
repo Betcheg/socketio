@@ -6,6 +6,12 @@
   var username;
   var socket = io();
 
+  var partieCourante = {
+    id: "",
+    adversaire: "",
+    motADeviner: "",
+    nombreIndice: 1
+  }
 
   function afficherUsername(){
     setUsername(usernameInput.val());
@@ -20,8 +26,13 @@
 
   function donnerIndice(){
     indice = $('.ind');
-    socket.emit('faire_deviner_mot', indice.val());
-      effacerTMP();
+
+    socket.emit('faire_deviner_mot', {
+            idPartie: partieCourante.id,
+            indice: indice.val(),
+          });
+
+    effacerTMP();
     ecrire("<i> en attente ... </i>");
   }
 
@@ -35,7 +46,9 @@
 
 
   socket.on('rdy', function (data) {
-      ecrire(data);
+        partieCourante.id = data.idPartie;
+        partieCourante.adversaire = data.adversaire;
+        ecrire(data.message);
       document.getElementById("intro").innerHTML ="";
   });
 
@@ -43,12 +56,11 @@
       ecrire(data);
   });
 
-  socket.on('begin', function (data) {
-      ecrire(data);
-  });
 
   socket.on('start', function (data) {
-      ecrire(data);
+    partieCourante.id = data.idPartie;
+    partieCourante.mot = data.mot;
+    ecrire(data.message);
   });
 
   socket.on('donner_indice', function (data) {
