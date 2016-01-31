@@ -15,16 +15,10 @@ app.use(express.static(__dirname + '/public'));
 
 var nombreDeJoueurTotal = 0;  // Nombre de joueur en ligne
 
-var j1 = "";
-var j2 = "";
-
-var idJ1 = "";
-var idJ2 = "";
-
 var mots = ["chat", "chien", "groslu"];
 var mot = "";
 
-var joueurAttente = []; // Les joueur qui attendent une partie
+var joueurAttente = []; // Les joueurs qui attendent une partie
 
 // Squelette d'un joueur
 var joueur = {
@@ -42,32 +36,9 @@ var partie = {
   libre: true
 }
 
-
 var listePartie = [];
 // **************************************
 io.on('connection', function (socket) {
-
-  socket.on('new message', function (data) {
-    socket.broadcast.emit('new message', {
-      username: socket.username,
-      message: data
-    });
-  });
-
-  // *****************************************
-
-  // client1 : nouveau joueur
-  // serveur : nbjoueur ++
-  // client1 :attente ...
-  // client2 : nouveau joueur
-  // serveur : -> nb joeuur ++
-  // serveur : nbjoeuur = 2 => OK
-
-  // serveur : commencer partie
-  // serveur : Donner mot client 1
-  // serveur : demander de deviner client2
-
-  // ******************************************
 
   //***************************************
   function getRandomId()
@@ -84,8 +55,64 @@ io.on('connection', function (socket) {
 
   // ============== TRAITEMENT =====================
 
+  socket.on('disconnect', function() {
+    var trouve = false;
+    var iPartie = 0;
+
+    for (i=0; i<joueurAttente.length; i++){
+      if(joueurAttente[i].id == socket.id){
+        iPartie=i;
+        trouve = true;
+        break;
+      }
+      else {
+      }
+
+    }
+
+    if(trouve){
+      joueurAttente.splice(iPartie, 1);
+      nombreDeJoueurTotal--;
+      //io.emit('attente', "Un joueur qui attendait s'est deco");
+    }
+
+    else {
+      var nomJoueur = "";
+      for (i=0; i<listePartie.length; i++){
+        if(listePartie[i].joueur1.id == socket.id ){
+          iPartie=i;
+          trouve = true;
+          nomJoueur = listePartie[i].joueur1.pseudo;
+          break;
+        }
+        else if (listePartie[i].joueur2.id == socket.id){
+          iPartie=i;
+          trouve = true;
+          nomJoueur = listePartie[i].joueur2.pseudo;
+          break;
+        }
+      }
+
+      if(trouve){
+        io.emit('attente', "Un joueur dans une partie s'est deco ( "+nomJoueur+" ).");
+        io.emit('attente', "La partie est donc dissoute.");
+        nombreDeJoueurTotal--;
+        listePartie.splice(iPartie, 1);
+      }
+
+      else {
+              console.log("N'est pas censé arriver.");
+              console.log("Il faut mettre les orphelins dans la file d'attente à nouveau");
+      }
+
+    }
+
+
+  });
+
   socket.on('add_user', function (username) {
     nombreDeJoueurTotal++;
+    var tmpSocketId = socket.id;
 
     if(joueurAttente.length == 0){
       var joueurCourant = {
@@ -124,34 +151,36 @@ io.on('connection', function (socket) {
 
 
       socket.broadcast.to(partieCourante.joueur1.id).emit('rdy', {
-              idPartie: partieCourante.id,
-              adversaire: partieCourante.joueur2.pseudo,
-              message: "Vous jouez contre <b>"+partieCourante.joueur2.pseudo+"</b><br>"
-            });
+        idPartie: partieCourante.id,
+        adversaire: partieCourante.joueur2.pseudo,
+        message: "Vous jouez contre <b>"+partieCourante.joueur2.pseudo+"</b><br>"
+      });
 
       socket.broadcast.to(partieCourante.joueur2.id).emit('rdy', {
-              idPartie: partieCourante.id,
-              adversaire: partieCourante.joueur1.pseudo,
-              message: "Vous jouez contre <b>"+partieCourante.joueur1.pseudo+"</b><br>"
-            });
+        idPartie: partieCourante.id,
+        adversaire: partieCourante.joueur1.pseudo,
+        message: "Vous jouez contre <b>"+partieCourante.joueur1.pseudo+"</b><br>"
+      });
 
 
       socket.broadcast.to(partieCourante.joueur1.id).emit('start', {
-              idPartie: partieCourante.id,
-              mot: partieCourante.motADeviner,
-              message: "Tu dois faire deviner le mot <b>"+partieCourante.motADeviner+"</b><hr>"
-            });
+        idPartie: partieCourante.id,
+        mot: partieCourante.motADeviner,
+        message: "Tu dois faire deviner le mot <b>"+partieCourante.motADeviner+"</b><hr>"
+      });
 
 
       socket.broadcast.to(partieCourante.joueur2.id).emit('start', {
-              idPartie: partieCourante.id,
-              mot: "",
-              message: "Tu dois essayer de DEVINER.<hr>"
-            });
+        idPartie: partieCourante.id,
+        mot: "",
+        message: "Tu dois essayer de DEVINER.<hr>"
+      });
 
       socket.broadcast.to(partieCourante.joueur1.id).emit('donner_indice', partieCourante.nombreIndice);
-
+      
     }
+    socket.id = tmpSocketId;
+
 
 
   });
@@ -171,8 +200,8 @@ io.on('connection', function (socket) {
       console.log("SCENARIO D'ERREUR, A TRAITER");
     }
     else{
-    socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('recevoir_indice', data.indice);
-  }
+      socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('recevoir_indice', data.indice);
+    }
   });
 
 
@@ -192,17 +221,17 @@ io.on('connection', function (socket) {
     }
     else{
 
-    socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine', listePartie[iPartie].joueur2.pseudo+" a répondu : <b>"+data.mot+"</b>");
+      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine', listePartie[iPartie].joueur2.pseudo+" a répondu : <b>"+data.mot+"</b>");
 
-    if (listePartie[iPartie].motADeviner == data.mot) {
-      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
-      socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('gagner', listePartie[iPartie].nombreIndice);
+      if (listePartie[iPartie].motADeviner == data.mot) {
+        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
+        socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('gagner', listePartie[iPartie].nombreIndice);
+      }
+      else {
+        listePartie[iPartie].nombreIndice++;
+        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
+      }
     }
-    else {
-      listePartie[iPartie].nombreIndice++;
-      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
-    }
-  }
   });
 
 });
