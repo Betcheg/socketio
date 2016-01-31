@@ -23,4 +23,4 @@ Mettre tout le repertoire socketio dans /var/www/
 
 Aller sur `http://localhost:3000` si le serveur est local.
 
-Aller sur 'http://nomdedomaine.com:3000` si le serveur est en ligne.
+Aller sur `http://nomdedomaine.com:3000` si le serveur est en ligne.
