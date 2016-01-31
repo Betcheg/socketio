@@ -176,15 +176,33 @@ io.on('connection', function (socket) {
   });
 
 
-  socket.on('repondre_mot', function (word) {
-    socket.broadcast.to(idJ1).emit('mot_devine', j2+" a répondu : <b>"+word+"</b>");
-    if (word == mot) {
-      io.emit("gagner", nombreIndice);
+  socket.on('repondre_mot', function (data) {
+    var trouve = false;
+    var iPartie = 0;
+    for (i=0; i<listePartie.length; i++){
+      if(listePartie[i].id == data.idPartie){
+        iPartie=i;
+        trouve = true;
+        break;
+      }
+    }
+
+    if(!trouve){
+      console.log("SCENARIO D'ERREUR, A TRAITER");
+    }
+    else{
+
+    socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine', listePartie[iPartie].joueur2.pseudo+" a répondu : <b>"+data.mot+"</b>");
+
+    if (listePartie[iPartie].motADeviner == data.mot) {
+      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
+      socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('gagner', listePartie[iPartie].nombreIndice);
     }
     else {
-      nombreIndice++;
-      socket.broadcast.to(idJ1).emit('donner_indice', nombreIndice);
+      listePartie[iPartie].nombreIndice++;
+      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
     }
+  }
   });
 
 });
