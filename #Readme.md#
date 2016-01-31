@@ -19,7 +19,7 @@ $ node . # Pour lancer le serveur et ecouter sur le port 3000
 
 # Jouer
 
-Mettre tout le repertoire socketio à la racine de /var/www
+Mettre tout le repertoire
 
 Aller sur `http://localhost:3000` si le serveur est local.
 
