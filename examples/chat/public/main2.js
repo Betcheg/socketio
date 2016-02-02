@@ -46,13 +46,13 @@ function donnerReponse(){
   ecrire("<i> en attente ... </i>");
 }
 
+
 function rejouer(){
   socket.emit('rejouer', {
     idPartie: partieCourante.id
   });
   ecrire("<i> en attente ... </i>");
 }
-
 
 
 socket.on('rdy', function (data) {

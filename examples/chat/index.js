@@ -61,6 +61,44 @@ io.on('connection', function (socket) {
     console.log("SCENARIO D'ERREUR, A TRAITER");
     return -1;
   }
+
+  function lancerPartie(partieCourante){
+    var socktmp = socket.id;
+    socket.id = null;
+    partieCourante.etat = "cours";
+    partieCourante.nombreIndice = 1;
+    partieCourante.motADeviner = mots[Math.floor(Math.random()*3)];
+    socket.broadcast.to(partieCourante.joueur1.id).emit('attente', "<hr>C'est toi qui commence!");
+
+    socket.broadcast.to(partieCourante.joueur1.id).emit('rdy', {
+      idPartie: partieCourante.id,
+      adversaire: partieCourante.joueur2.pseudo,
+      message: "Vous jouez contre <b>"+partieCourante.joueur2.pseudo+"</b><br>"
+    });
+
+    socket.broadcast.to(partieCourante.joueur2.id).emit('rdy', {
+      idPartie: partieCourante.id,
+      adversaire: partieCourante.joueur1.pseudo,
+      message: "Vous jouez contre <b>"+partieCourante.joueur1.pseudo+"</b><br>"
+    });
+
+
+    socket.broadcast.to(partieCourante.joueur1.id).emit('start', {
+      idPartie: partieCourante.id,
+      mot: partieCourante.motADeviner,
+      message: "Tu dois faire deviner le mot <b>"+partieCourante.motADeviner+"</b><hr>"
+    });
+
+
+    socket.broadcast.to(partieCourante.joueur2.id).emit('start', {
+      idPartie: partieCourante.id,
+      mot: "",
+      message: "Tu dois essayer de DEVINER.<hr>"
+    });
+
+    socket.broadcast.to(partieCourante.joueur1.id).emit('donner_indice', partieCourante.nombreIndice);
+    socket.id = socktmp;
+  }
   //***************************************
 
   // ============== TRAITEMENT =====================
@@ -147,7 +185,7 @@ io.on('connection', function (socket) {
         id: getRandomId(),
         joueur1: joueurAttente.shift(),
         joueur2: joueurCourant,
-        motADeviner: mots[Math.floor(Math.random()*3)],
+        motADeviner: "",
         nombreIndice: 1,
         etat: "cours", // Cours, Finie
         libre: false
@@ -157,36 +195,8 @@ io.on('connection', function (socket) {
 
       socket.broadcast.to(partieCourante.joueur1.id).emit('attente', "<i>Un joueur à été trouvé!</i>");
       socket.broadcast.to(partieCourante.joueur2.id).emit('attente', "<i>Un joueur à été trouvé!</i>");
-      socket.broadcast.to(partieCourante.joueur1.id).emit('attente', "<hr>C'est toi qui commence!");
 
-
-      socket.broadcast.to(partieCourante.joueur1.id).emit('rdy', {
-        idPartie: partieCourante.id,
-        adversaire: partieCourante.joueur2.pseudo,
-        message: "Vous jouez contre <b>"+partieCourante.joueur2.pseudo+"</b><br>"
-      });
-
-      socket.broadcast.to(partieCourante.joueur2.id).emit('rdy', {
-        idPartie: partieCourante.id,
-        adversaire: partieCourante.joueur1.pseudo,
-        message: "Vous jouez contre <b>"+partieCourante.joueur1.pseudo+"</b><br>"
-      });
-
-
-      socket.broadcast.to(partieCourante.joueur1.id).emit('start', {
-        idPartie: partieCourante.id,
-        mot: partieCourante.motADeviner,
-        message: "Tu dois faire deviner le mot <b>"+partieCourante.motADeviner+"</b><hr>"
-      });
-
-
-      socket.broadcast.to(partieCourante.joueur2.id).emit('start', {
-        idPartie: partieCourante.id,
-        mot: "",
-        message: "Tu dois essayer de DEVINER.<hr>"
-      });
-
-      socket.broadcast.to(partieCourante.joueur1.id).emit('donner_indice', partieCourante.nombreIndice);
+      lancerPartie(partieCourante);
 
     }
     socket.id = tmpSocketId;
@@ -222,6 +232,7 @@ io.on('connection', function (socket) {
       if (listePartie[iPartie].motADeviner == data.mot) {
         socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
         socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('gagner', listePartie[iPartie].nombreIndice);
+        listePartie[iPartie].etat = "finie";
       }
       else {
         listePartie[iPartie].nombreIndice++;
@@ -229,6 +240,26 @@ io.on('connection', function (socket) {
       }
     }
     socket.id=tmp;
+  });
+
+  socket.on('rejouer', function(data) {
+    var iPartie = trouverPartie(data.idPartie);
+    if(iPartie == -1){
+            console.log("SCENARIO D'ERREUR, A TRAITER");
+    }
+    else {
+      if(listePartie[iPartie].etat == "finie") { // La partie est finie, 1 seule personne souhaite rejouer
+        listePartie[iPartie].etat = "attentedeuxiemejoueur";
+      }
+      else if(listePartie[iPartie].etat == "attentedeuxiemejoueur"){ // Les 2 joueurs souhaitent rejouer
+        // On echange les roles
+        var tmp = listePartie[iPartie].joueur1;
+        listePartie[iPartie].joueur1 = listePartie[iPartie].joueur2;
+        listePartie[iPartie].joueur2 = tmp;
+        // On lance la partie
+        lancerPartie(listePartie[iPartie]);
+      }
+    }
   });
 
 });
