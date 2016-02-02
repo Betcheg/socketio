@@ -46,6 +46,13 @@ function donnerReponse(){
   ecrire("<i> en attente ... </i>");
 }
 
+function rejouer(){
+  socket.emit('rejouer', {
+    idPartie: partieCourante.id
+  });
+  ecrire("<i> en attente ... </i>");
+}
+
 
 
 socket.on('rdy', function (data) {
@@ -81,6 +88,7 @@ socket.on('mot_devine', function (data) {
 
 socket.on('gagner', function (data) {
   ecrire("Félicitation! Vous avez gagné en <b>"+data+"</b> coups!!");
+  ecrire("<button onClick='rejouer()'>Rejouer contre la meme personne?</button>");
 });
 
 function ecrire(data){

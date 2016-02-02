@@ -51,6 +51,16 @@ io.on('connection', function (socket) {
 
     return randomId;
   }
+
+  function trouverPartie(idAchercher) {
+    for (i=0; i<listePartie.length; i++){
+      if(listePartie[i].id == idAchercher){
+        return i;
+      }
+    }
+    console.log("SCENARIO D'ERREUR, A TRAITER");
+    return -1;
+  }
   //***************************************
 
   // ============== TRAITEMENT =====================
@@ -101,8 +111,8 @@ io.on('connection', function (socket) {
       }
 
       else {
-              console.log("N'est pas censé arriver.");
-              console.log("Il faut mettre les orphelins dans la file d'attente à nouveau");
+        console.log("N'est pas censé arriver.");
+        console.log("Il faut mettre les orphelins dans la file d'attente à nouveau");
       }
 
     }
@@ -135,11 +145,11 @@ io.on('connection', function (socket) {
       // Preparation des informations de la partie
       var partieCourante = {
         id: getRandomId(),
-        joueur1: joueurCourant,
-        joueur2: joueurAttente.shift(),
+        joueur1: joueurAttente.shift(),
+        joueur2: joueurCourant,
         motADeviner: mots[Math.floor(Math.random()*3)],
         nombreIndice: 1,
-        etat: "", // Inactif ? Deco ?
+        etat: "cours", // Cours, Finie
         libre: false
       }
       // Ajout de la partie à la liste des parties en cours
@@ -186,17 +196,9 @@ io.on('connection', function (socket) {
   });
 
   socket.on('faire_deviner_mot', function (data) {
-    var trouve = false;
-    var iPartie = 0;
-    for (i=0; i<listePartie.length; i++){
-      if(listePartie[i].id == data.idPartie){
-        iPartie=i;
-        trouve = true;
-        break;
-      }
-    }
 
-    if(!trouve){
+    var iPartie = trouverPartie(data.idPartie);
+    if(iPartie == -1){
       console.log("SCENARIO D'ERREUR, A TRAITER");
     }
     else{
@@ -206,17 +208,11 @@ io.on('connection', function (socket) {
 
 
   socket.on('repondre_mot', function (data) {
-    var trouve = false;
-    var iPartie = 0;
-    for (i=0; i<listePartie.length; i++){
-      if(listePartie[i].id == data.idPartie){
-        iPartie=i;
-        trouve = true;
-        break;
-      }
-    }
+    var tmp = socket.id;
+    socket.id = null;
 
-    if(!trouve){
+    var iPartie = trouverPartie(data.idPartie);
+    if(iPartie == -1){
       console.log("SCENARIO D'ERREUR, A TRAITER");
     }
     else{
@@ -232,6 +228,7 @@ io.on('connection', function (socket) {
         socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
       }
     }
+    socket.id=tmp;
   });
 
 });
