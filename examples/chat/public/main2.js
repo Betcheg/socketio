@@ -48,6 +48,7 @@ function donnerReponse(){
 
 
 function rejouer(){
+    $( ".btnrejouer" ).remove();
   socket.emit('rejouer', {
     idPartie: partieCourante.id
   });
@@ -88,7 +89,7 @@ socket.on('mot_devine', function (data) {
 
 socket.on('gagner', function (data) {
   ecrire("Félicitation! Vous avez gagné en <b>"+data+"</b> coups!!");
-  ecrire("<button onClick='rejouer()'>Rejouer contre la meme personne?</button>");
+  ecrire("<button class='btnrejouer' onClick='rejouer()'>Rejouer contre la meme personne?</button>");
 });
 
 function ecrire(data){
