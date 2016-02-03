@@ -6,6 +6,16 @@ var indice;
 var username;
 var socket = io();
 
+pseudoTmp = "visiteur"+(Math.floor(Math.random() * 1000) +1);
+
+$("#jouer").click(function() {
+  //  $("#contenu").fadeOut(400,function(){
+  $("#contenu").html("");
+  recherchePartie();
+  //});
+});
+
+
 var partieCourante = {
   id: "",
   adversaire: "",
@@ -13,14 +23,24 @@ var partieCourante = {
   nombreIndice: 1
 }
 
+function recherchePartie()
+{
+  socket.emit('add_user', pseudoTmp);
+}
+
+function centerInBlock(chaine) {
+  $("#contenu").html("<span style='text-align:center;margin-top: 150px;display: inline-block'>"+chaine+"</span>");
+
+}
+
 function afficherUsername(){
   setUsername(usernameInput.val());
 }
 
+
 // Sets the client's username
 function setUsername (un) {
   username = un;
-  console.log(un);
   socket.emit('add_user', username);
 }
 
@@ -48,7 +68,8 @@ function donnerReponse(){
 
 
 function rejouer(){
-    $( ".btnrejouer" ).remove();
+  $( ".btnrejouer" ).remove();
+    $("#contenu").html("");
   socket.emit('rejouer', {
     idPartie: partieCourante.id
   });
@@ -60,11 +81,13 @@ socket.on('rdy', function (data) {
   partieCourante.id = data.idPartie;
   partieCourante.adversaire = data.adversaire;
   ecrire(data.message);
-  document.getElementById("intro").innerHTML ="";
+  //  document.getElementById("intro").innerHTML ="";
 });
 
 socket.on('attente', function (data) {
-  ecrire(data);
+
+  centerInBlock(data);
+
 });
 
 
@@ -75,12 +98,28 @@ socket.on('start', function (data) {
 });
 
 socket.on('donner_indice', function (data) {
-  ecrire("Indice n°"+data+ "<div class='tmp'><input type='text' class='ind' maxlength='14'><button onClick='donnerIndice()'> OK </button></div>");
+  ecrire("<div class='tmp'>"
+  +"<label>Indice n°"+data+"</label> <br>"
+  +"<input type='text' placeholder='Indice' autofocus class='ind' maxlength='14'> "
+  +"<button id='b_ind' onClick='donnerIndice()' class='btn btn-sm btn-success'> OK </button></div>");
+
+  $(".ind").keyup(function(event){
+    if(event.keyCode == 13){
+      $("#b_ind").click();
+    }
+  });
 });
 
 socket.on('recevoir_indice', function (data) {
   ecrire("Vous avez recu l'indice: <b>" + data +"</b>");
-  ecrire("<div class='tmp'>Votre réponse ? <input type='text' class='ind' maxlength='14'><button onClick='donnerReponse()'> OK </button></div>");
+  ecrire("<div class='tmp'>"
+  +"<input type='text' placeholder='Indice' autofocus class='ind' maxlength='14'> "
+  +"<button id='b_ind' onClick='donnerReponse()' class='btn btn-sm btn-success'> OK </button></div>");
+  $(".ind").keyup(function(event){
+    if(event.keyCode == 13){
+      $("#b_ind").click();
+    }
+  });
 });
 
 socket.on('mot_devine', function (data) {
@@ -93,7 +132,7 @@ socket.on('gagner', function (data) {
 });
 
 function ecrire(data){
-  document.getElementById("block").innerHTML += data + "<br>";
+  document.getElementById("contenu").innerHTML += data + "<br>";
 }
 
 function effacerTMP(){

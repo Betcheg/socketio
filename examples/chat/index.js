@@ -169,7 +169,7 @@ io.on('connection', function (socket) {
       }
       joueurAttente.push(joueurCourant);
       socket.id = null;
-      socket.broadcast.to(joueurCourant.id).emit('attente', "<i>En attente d'un second joueur</i>");
+      socket.broadcast.to(joueurCourant.id).emit('attente', "<i> Recherche d'un adversaire ...</i>");
     }
 
     else {
