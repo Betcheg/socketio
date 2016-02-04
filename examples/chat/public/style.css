@@ -27,12 +27,12 @@ font-weight: bold;
 }
 
 #annonce{
-  padding-top:130px;
+  margin-top:50px;
 }
 
 #holderindice {
   height:100px;
-  border-bottom: 1px solid grey;
+  padding-top: 100px;
 }
 
 #indice {

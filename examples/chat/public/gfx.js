@@ -2,14 +2,14 @@ function preparerContenu(){
   $("#contenu").html("<div id='adversaire'></div>"
   +"<div id='etat'></div>"
   +"<div id='divmot'></div>"
-  +"<div id='holderindice'>"
-  +"<div id='indice'></div>"
-  +"</div>"
-  +"<div id='indicereponse'>"
   +"<div id='tableau'>"
   +"<div id='tableauIndice'><li class='titretableau'>Indices</li></div>"
   +"<div id='tableauReponse'><li class='titretableau'>Réponses</li></div>"
   +"</div>"
+  +"<div id='holderindice'>"
+  +"<div id='indice'></div>"
+  +"</div>"
+  +"<div id='indicereponse'>"
   +"<div id='annonce'></div>"
   +"</div>");
 }
