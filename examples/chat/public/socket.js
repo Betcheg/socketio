@@ -75,5 +75,6 @@ socket.on('mot_devine', function (data) {
 
 socket.on('gagner', function (data) {
   ecrireAnnonce(getMessageFin(data));
+  ecrireIndice("");
   ecrireEtat(2);
 });
