@@ -27,9 +27,9 @@ function donnerIndice(){
     idPartie: partieCourante.id,
     indice: indice.val(),
   });
-
+  ajouterIndiceTableau(indice.val());
+  ecrireEtat(1);
   effacerTMP();
-  ecrire("<i> en attente ... </i>");
 }
 
 function donnerReponse(){
@@ -38,8 +38,9 @@ function donnerReponse(){
     idPartie: partieCourante.id,
     mot: indice.val(),
   });
+  ajouterReponseTableau(indice.val());
+  ecrireEtat(1);
   effacerTMP();
-  ecrire("<i> en attente ... </i>");
 }
 
 

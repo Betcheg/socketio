@@ -1,0 +1,72 @@
+#adversaire{
+  margin: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: center;
+  background-color: #ffffff;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border-bottom: 1px solid grey;
+}
+
+#etat{
+
+}
+
+.titretableau {
+text-align:center;
+font-weight: bold;
+}
+
+#divmot {
+  background-color: green;
+}
+
+#annonce{
+  padding-top:130px;
+}
+
+#holderindice {
+  height:100px;
+  border-bottom: 1px solid grey;
+}
+
+#indice {
+padding-top:20px;background-color: #ffffff;
+}
+
+#indicereponse {
+  background-color: orange;
+}
+
+#tableau {
+  padding-top: 30px;margin:auto;width:400px;
+}
+
+#tableauIndice {
+height: 100px;
+width: 200px;
+display: inline-block;
+background-color: lightblue;
+float:left;
+}
+
+#tableauReponse {
+height:100px;
+width:200px;
+float:right;
+background-color: lightgrey;
+display: inline-block;
+}
+
+.light {
+background-color: orange;
+}
+
+li{
+list-style-type:none;
+}
+
+.dark {
+background-color: red;
+}

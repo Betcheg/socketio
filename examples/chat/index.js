@@ -133,8 +133,14 @@ io.on('connection', function (socket) {
       }
 
       if(trouve){
-        io.emit('attente', "Un joueur dans une partie s'est deco ( "+nomJoueur+" ).");
-        io.emit('attente', "La partie est donc dissoute.");
+        if(nomJoueur == listePartie[iPartie].joueur1.pseudo){
+          socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', "Un joueur dans une partie s'est deco ( "+nomJoueur+" ).");
+          socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', "<br>La partie est donc dissoute.");
+        }
+        else {
+          socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', "Un joueur dans une partie s'est deco ( "+nomJoueur+" ).");
+          socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', "<br>La partie est donc dissoute.");
+        }
         nombreDeJoueurTotal--;
         listePartie.splice(iPartie, 1);
       }
@@ -219,7 +225,7 @@ io.on('connection', function (socket) {
     }
     else{
 
-      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine', listePartie[iPartie].joueur2.pseudo+" a répondu : <b>"+data.mot+"</b>");
+      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine',data.mot);
 
       if (listePartie[iPartie].motADeviner == data.mot) {
         socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
