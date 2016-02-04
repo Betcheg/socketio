@@ -69,33 +69,23 @@ io.on('connection', function (socket) {
     partieCourante.nombreIndice = 1;
     partieCourante.motADeviner = mots[Math.floor(Math.random()*1075)];
 
-    socket.broadcast.to(partieCourante.joueur1.id).emit('attente', "<hr>C'est toi qui commence!");
 
     socket.broadcast.to(partieCourante.joueur1.id).emit('rdy', {
       idPartie: partieCourante.id,
+      joueur: partieCourante.joueur1.pseudo,
       adversaire: partieCourante.joueur2.pseudo,
-      message: "Vous jouez contre <b>"+partieCourante.joueur2.pseudo+"</b><br>"
+      commence: 1,
+      mot: partieCourante.motADeviner,
     });
 
     socket.broadcast.to(partieCourante.joueur2.id).emit('rdy', {
       idPartie: partieCourante.id,
+      joueur: partieCourante.joueur2.pseudo,
       adversaire: partieCourante.joueur1.pseudo,
-      message: "Vous jouez contre <b>"+partieCourante.joueur1.pseudo+"</b><br>"
-    });
-
-
-    socket.broadcast.to(partieCourante.joueur1.id).emit('start', {
-      idPartie: partieCourante.id,
-      mot: partieCourante.motADeviner,
-      message: "Tu dois faire deviner le mot <b>"+partieCourante.motADeviner+"</b><hr>"
-    });
-
-
-    socket.broadcast.to(partieCourante.joueur2.id).emit('start', {
-      idPartie: partieCourante.id,
       mot: "",
-      message: "Tu dois essayer de DEVINER.<hr>"
+      commence: 0,
     });
+
 
     socket.broadcast.to(partieCourante.joueur1.id).emit('donner_indice', partieCourante.nombreIndice);
     socket.id = socktmp;
@@ -247,7 +237,7 @@ io.on('connection', function (socket) {
   socket.on('rejouer', function(data) {
     var iPartie = trouverPartie(data.idPartie);
     if(iPartie == -1){
-            console.log("SCENARIO D'ERREUR, A TRAITER");
+      console.log("SCENARIO D'ERREUR, A TRAITER");
     }
     else {
       if(listePartie[iPartie].etat == "finie") { // La partie est finie, 1 seule personne souhaite rejouer

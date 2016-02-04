@@ -1,3 +1,27 @@
+function preparerContenu(){
+
+  $("#contenu").html("<div id='adversaire' style='text-align:center; background-color:blue;'></div>"
+  +"<div id='etat' style='background-color:yellow;'></div>"
+  +"<div id='divmot' style='background-color: green;'></div>"
+  +"<div id='indicereponse' style='background-color: orange;'></div>"
+  +"<div id='indice' style='background-color: purple;'></div>");
+
+}
+
+function ecrireVersus(j, a) {
+  $("#adversaire").html("<b>"+j+"</b> vs <b>"+a+"</b>");
+}
+
+function ecrireEtat(e) {
+  if (e == 0){
+    $("#etat").html("A toi");
+  }
+  else $("#etat").html("En attente");
+}
+
+function ecrireMotAFaireDeviner(m){
+    $("#divmot").html("Vous devez faire deviner "+m);
+}
 
 function afficherUsername(){
   setUsername(usernameInput.val());
@@ -16,7 +40,7 @@ $("#jouer").click(function() {
 
 function afficherNouvellePartie(data) {
     $("#contenu").html("");
-      
+
 }
 
 function effacerTMP(){

@@ -1,10 +1,22 @@
 var socket = io();
 
 socket.on('rdy', function (data) {
+  effacerContenu();
+  preparerContenu();
   partieCourante.id = data.idPartie;
   partieCourante.adversaire = data.adversaire;
-  ecrire(data.message);
-  //  document.getElementById("intro").innerHTML ="";
+
+  ecrireVersus(data.joueur, data.adversaire);
+
+  if(data.commence == 1) {
+    ecrireEtat(0); // A vous de jouer
+    ecrireMotAFaireDeviner(data.mot);
+  }
+  else {
+    ecrireEtat(1); // En attente
+  }
+
+
 });
 
 socket.on('attenteAdversaire', function (data) {
