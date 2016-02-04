@@ -84,9 +84,22 @@ socket.on('rdy', function (data) {
   //  document.getElementById("intro").innerHTML ="";
 });
 
-socket.on('attente', function (data) {
+socket.on('info', function (data) {
 
   centerInBlock(data);
+
+});
+
+socket.on('begin', function (data) {
+
+  $("#contenu").html("");
+  ecrire(data);
+
+});
+
+socket.on('attente', function (data) {
+
+  ecrire(data);
 
 });
 

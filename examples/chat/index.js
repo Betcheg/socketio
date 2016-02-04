@@ -169,7 +169,7 @@ io.on('connection', function (socket) {
       }
       joueurAttente.push(joueurCourant);
       socket.id = null;
-      socket.broadcast.to(joueurCourant.id).emit('attente', "<i> Recherche d'un adversaire ...</i>");
+      socket.broadcast.to(joueurCourant.id).emit('info', "<i> Recherche d'un adversaire ...</i>");
     }
 
     else {
@@ -193,8 +193,8 @@ io.on('connection', function (socket) {
       // Ajout de la partie à la liste des parties en cours
       listePartie.push(partieCourante);
 
-      socket.broadcast.to(partieCourante.joueur1.id).emit('attente', "<i>Un joueur à été trouvé!</i>");
-      socket.broadcast.to(partieCourante.joueur2.id).emit('attente', "<i>Un joueur à été trouvé!</i>");
+      socket.broadcast.to(partieCourante.joueur1.id).emit('begin', "<i>Un joueur à été trouvé!</i>");
+      socket.broadcast.to(partieCourante.joueur2.id).emit('begin', "<i>Un joueur à été trouvé!</i>");
 
       lancerPartie(partieCourante);
 
