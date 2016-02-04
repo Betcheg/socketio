@@ -39,8 +39,14 @@ socket.on('attente', function (data) {
 
 
 socket.on('adversaireDeconnecte', function (data) {
-  ecrireAnnonce(data);
+  ecrireAnnonce("Un joueur dans une partie s'est deco ( "
+  +data
+  +").<br>La partie est donc dissoute."
+  +"<br>"
+  +"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouerFile()'>Rejouer</button>");
+
   ecrireEtat(3);
+  effacerTMP();
 });
 
 socket.on('start', function (data) {
@@ -63,8 +69,8 @@ socket.on('recevoir_indice', function (data) {
 });
 
 socket.on('mot_devine', function (data) {
-    ajouterReponseTableau(data);
-    ecrireEtat(0);
+  ajouterReponseTableau(data);
+  ecrireEtat(0);
 });
 
 socket.on('gagner', function (data) {

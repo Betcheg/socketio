@@ -5,6 +5,18 @@ var indice;
 
 pseudoTmp = "visiteur"+(Math.floor(Math.random() * 1000) +1);
 
+$("#jouer").click(function() {
+  //  $("#contenu").fadeOut(400,function(){
+  effacerContenu();
+  recherchePartie();
+  //});
+});
+
+function rejouerFile(){
+  effacerContenu();
+  recherchePartie();
+}
+
 var partieCourante = {
   id: "",
   adversaire: "",

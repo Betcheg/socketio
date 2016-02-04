@@ -134,12 +134,10 @@ io.on('connection', function (socket) {
 
       if(trouve){
         if(nomJoueur == listePartie[iPartie].joueur1.pseudo){
-          socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', "Un joueur dans une partie s'est deco ( "+nomJoueur+" ).");
-          socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', "<br>La partie est donc dissoute.");
+          socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur1.pseudo);
         }
         else {
-          socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', "Un joueur dans une partie s'est deco ( "+nomJoueur+" ).");
-          socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', "<br>La partie est donc dissoute.");
+          socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur2.pseudo);
         }
         nombreDeJoueurTotal--;
         listePartie.splice(iPartie, 1);
