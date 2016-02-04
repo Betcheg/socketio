@@ -9,6 +9,10 @@
   border-bottom: 1px solid grey;
 }
 
+.gras {
+  color: #2980b9;
+  font-weight: bold;
+}
 #etat{
 
 }

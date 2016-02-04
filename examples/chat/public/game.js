@@ -58,8 +58,9 @@ function donnerReponse(){
 
 function rejouer(){
   effacerContenu();
+  centerInBlock(afficherAttente());
   socket.emit('rejouer', {
     idPartie: partieCourante.id
   });
-  ecrire("<i> en attente ... </i>");
+
 }

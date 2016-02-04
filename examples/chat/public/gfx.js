@@ -75,7 +75,7 @@ function ecrireEtat(e) {
 }
 
 function ecrireMotAFaireDeviner(m){
-    $("#divmot").html("Vous devez faire deviner "+m);
+    $("#divmot").html("Vous devez faire deviner le mot <span class='gras'>"+m+'</span>');
 }
 
 function afficherUsername(){
