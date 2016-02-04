@@ -68,6 +68,7 @@ io.on('connection', function (socket) {
     partieCourante.etat = "cours";
     partieCourante.nombreIndice = 1;
     partieCourante.motADeviner = mots[Math.floor(Math.random()*1075)];
+
     socket.broadcast.to(partieCourante.joueur1.id).emit('attente', "<hr>C'est toi qui commence!");
 
     socket.broadcast.to(partieCourante.joueur1.id).emit('rdy', {
@@ -169,7 +170,8 @@ io.on('connection', function (socket) {
       }
       joueurAttente.push(joueurCourant);
       socket.id = null;
-      socket.broadcast.to(joueurCourant.id).emit('info', "<i> Recherche d'un adversaire ...</i>");
+
+      socket.broadcast.to(joueurCourant.id).emit('attenteAdversaire', "");
     }
 
     else {
@@ -193,8 +195,8 @@ io.on('connection', function (socket) {
       // Ajout de la partie à la liste des parties en cours
       listePartie.push(partieCourante);
 
-      socket.broadcast.to(partieCourante.joueur1.id).emit('begin', "<i>Un joueur à été trouvé!</i>");
-      socket.broadcast.to(partieCourante.joueur2.id).emit('begin', "<i>Un joueur à été trouvé!</i>");
+      //socket.broadcast.to(partieCourante.joueur1.id).emit('begin', "<i>Un joueur à été trouvé!</i>");
+      //socket.broadcast.to(partieCourante.joueur2.id).emit('begin', "<i>Un joueur à été trouvé!</i>");
 
       lancerPartie(partieCourante);
 
