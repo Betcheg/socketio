@@ -306,8 +306,9 @@ socket.on('repondre_mot', function (data) {
     else {
       listePartie[iPartie].nombreIndice++;
       if (listePartie[iPartie].nombreIndice > 4 ) {
-        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('perdu', listePartie[iPartie].motADeviner);
-        socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('perdu', listePartie[iPartie].motADeviner);
+        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('perdu', {n:1,mot:listePartie[iPartie].motADeviner});
+        socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('perdu', {n:2,mot:listePartie[iPartie].motADeviner});
+        listePartie[iPartie].etat = "finie";
       }
       else {
         socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
@@ -329,12 +330,14 @@ socket.id=tmp;
 
 socket.on('rejouer', function(data) {
   var iPartie = trouverPartie(data.idPartie);
+  console.log("rejouer");
   if(iPartie == -1){
     console.log("SCENARIO D'ERREUR, A TRAITER");
   }
   else {
     if(listePartie[iPartie].etat == "finie") { // La partie est finie, 1 seule personne souhaite rejouer
       listePartie[iPartie].etat = "attentedeuxiemejoueur";
+        console.log("attente2emej");
     }
     else if(listePartie[iPartie].etat == "attentedeuxiemejoueur"){ // Les 2 joueurs souhaitent rejouer
       // On echange les roles
@@ -343,6 +346,7 @@ socket.on('rejouer', function(data) {
       listePartie[iPartie].joueur2 = tmp;
       // On lance la partie
       lancerPartie(listePartie[iPartie]);
+        console.log("lancer");
     }
   }
 });

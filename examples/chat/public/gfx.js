@@ -119,9 +119,15 @@ return "Félicitation! Vous avez gagné en <b>"+data+"</b> coups!!<br>"
 }
 
 function getMessagePerdu(data) {
+  if(data.n==1) {
+    return "Vous n'avez pas réussi à faire deviner le mot...<br><br>"
+    +"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouer()'>Rejouer contre la meme personne?</button>";
+
+  } else {
 return "Vous n'avez pas réussi à deviner le mot...<br>"
-+"Il s'agissait du mot <span class='gras'>"+data+"</span> <br><br>"
++"Il s'agissait du mot <span class='gras'>"+data.mot+"</span> <br><br>"
 +"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouer()'>Rejouer contre la meme personne?</button>";
+}
 }
 
 function afficherInput(data, r){
