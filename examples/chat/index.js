@@ -273,7 +273,7 @@ io.on('connection', function (socket) {
     else {
       var tmp = socket.id;
       socket.id =null;
-      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur2.pseudo);
+      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('tricheDetectee', listePartie[iPartie].joueur2.pseudo);
       socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur1.pseudo);
       socket.id = tmp;
       console.log("Scenario de triche 1");
@@ -320,7 +320,7 @@ socket.on('repondre_mot', function (data) {
     var tmp = socket.id;
     socket.id =null;
     socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur2.pseudo);
-    socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur1.pseudo);
+    socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('tricheDetectee', listePartie[iPartie].joueur1.pseudo);
     socket.id = tmp;
     console.log("Scenario d'erreur 2");
   }

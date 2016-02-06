@@ -39,10 +39,23 @@ socket.on('attente', function (data) {
 
 
 socket.on('adversaireDeconnecte', function (data) {
-  ecrireAnnonce("Un joueur dans une partie s'est deco ( "
+  if($("#annonce").text() == "") {
+  ecrireAnnonce("Votre adversaire s'est deconnecté ( "
   +data
   +").<br>La partie est donc dissoute."
-  +"<br>"
+  +"<br><br>"
+  +"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouerFile()'>Rejouer</button>");
+  }
+  
+  ecrireEtat(3);
+  effacerTMP();
+});
+
+socket.on('tricheDetectee', function (data) {
+  ecrireAnnonce("Un comportement malveillant a été détecté.<br>"
+  +"Vous avez perdu 10 points."
+  +"<br>La partie est donc dissoute."
+  +"<br><br>"
   +"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouerFile()'>Rejouer</button>");
 
   ecrireEtat(3);
@@ -57,12 +70,14 @@ socket.on('start', function (data) {
 
 socket.on('donner_indice', function (data) {
   ecrireIndice(afficherInput(data, 1));
+  $("#b_ind").focus();
   //ajouterIndiceTableau(data);
   verifToucheEntree();
 });
 
 socket.on('recevoir_indice', function (data) {
   ecrireIndice(afficherInput(data, 0));
+    $("#b_ind").focus();
   ajouterIndiceTableau(data);
   verifToucheEntree();
   ecrireEtat(0);

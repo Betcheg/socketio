@@ -137,13 +137,13 @@ if( r == 0) {
   return "Vous avez recu l'indice: <b>" + data +"</b>"
   +"<div class='tmp'>"
   +"<input type='text' placeholder='Indice' autofocus class='ind' maxlength='14'> "
-  +"<button id='b_ind' onClick='donnerReponse()' class='btn btn-sm btn-success'> OK </button></div>";
+  +"<button id='b_ind'  required='true' onClick='donnerReponse()' class='btn btn-sm btn-success'> OK </button></div>";
 }
 else {
   return "<div class='tmp'>"
   +"<label>Indice n°"+data+"</label> <br>"
   +"<input type='text' placeholder='Indice' autofocus class='ind' maxlength='14'> "
-  +"<button id='b_ind' onClick='donnerIndice()' class='btn btn-sm btn-success'> OK </button></div>"
+  +"<button id='b_ind'  required='true' onClick='donnerIndice()' class='btn btn-sm btn-success'> OK </button></div>"
 }
 
 }
