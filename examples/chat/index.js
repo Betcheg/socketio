@@ -89,7 +89,7 @@ io.on('connection', function (socket) {
     else {
       console.log("ERR");
     }
-    console.log("Maintenant au tour de " +listePartie[iPartie].tour.id);
+    //console.log("Maintenant au tour de " +listePartie[iPartie].tour.id);
   };
 
   function verifierInput(c){
@@ -316,6 +316,11 @@ socket.on('repondre_mot', function (data) {
     }
   }
   else {
+    var tmp = socket.id;
+    socket.id =null;
+    socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur2.pseudo);
+    socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur1.pseudo);
+    socket.id = tmp;
     console.log("Scenario d'erreur 2");
   }
 }

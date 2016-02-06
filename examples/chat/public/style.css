@@ -13,6 +13,12 @@
   color: #2980b9;
   font-weight: bold;
 }
+
+.error
+{
+ border:1px solid red;
+}
+
 #etat{
 
 }

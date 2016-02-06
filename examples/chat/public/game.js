@@ -36,6 +36,7 @@ function setUsername (un) {
 
 function donnerIndice(){
   indice = $('.ind');
+  if(indice.val().length > 2){
   socket.emit('faire_deviner_mot', {
     idPartie: partieCourante.id,
     adversaire: partieCourante.adversaire,
@@ -47,9 +48,12 @@ function donnerIndice(){
   ecrireEtat(1);
   effacerTMP();
 }
+else $(".ind").addClass('error');
+}
 
 function donnerReponse(){
   indice = $('.ind');
+    if(indice.val().length > 2){
   socket.emit('repondre_mot', {
     idPartie: partieCourante.id,
     adversaire: partieCourante.adversaire,
@@ -60,6 +64,8 @@ function donnerReponse(){
   ajouterReponseTableau(indice.val());
   ecrireEtat(1);
   effacerTMP();
+}
+else $(".ind").addClass('error');
 }
 
 
