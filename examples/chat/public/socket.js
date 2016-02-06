@@ -5,7 +5,7 @@ socket.on('rdy', function (data) {
   preparerContenu();
   partieCourante.id = data.idPartie;
   partieCourante.adversaire = data.adversaire;
-
+  partieCourante.jid=data.jid;
   ecrireVersus(data.joueur, data.adversaire);
 
   if(data.commence == 1) {
@@ -74,7 +74,13 @@ socket.on('mot_devine', function (data) {
 });
 
 socket.on('gagner', function (data) {
-  ecrireAnnonce(getMessageFin(data));
+  ecrireAnnonce(getMessageGagne(data));
   ecrireIndice("");
   ecrireEtat(2);
+});
+
+socket.on('perdu', function (data) {
+  ecrireAnnonce(getMessagePerdu(data));
+  ecrireIndice("");
+  ecrireEtat(3);
 });

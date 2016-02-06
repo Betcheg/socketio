@@ -30,6 +30,7 @@ var partie = {
   id: 0, // optionnel
   joueur1: joueur,
   joueur2: joueur,
+  tour: joueur,
   motADeviner: "",
   nombreIndice: 1,
   etat: "", // Inactif ? Deco ?
@@ -62,17 +63,67 @@ io.on('connection', function (socket) {
     return -1;
   }
 
+  function verifierPartie(partieCoteClient, iPartie) {
+    var partieCoteServeur=listePartie[iPartie];
+    if( ((partieCoteClient.pseudo==partieCoteServeur.joueur1.pseudo && partieCoteClient.adversaire==partieCoteServeur.joueur2.pseudo)
+    || (partieCoteClient.pseudo==partieCoteServeur.joueur2.pseudo && partieCoteClient.adversaire==partieCoteServeur.joueur1.pseudo))
+    && partieCoteClient.idPartie==partieCoteServeur.id ) return true;
+    else {
+      console.log( "La partie" + partieCoteClient.idPartie + " " + partieCoteServeur.id + "is" + (partieCoteClient.idPartie==partieCoteServeur.id) );
+      console.log("first "+(partieCoteClient.pseudo==partieCoteServeur.joueur1 && partieCoteClient.adversaire==partieCoteServeur.joueur2));
+      console.log("second" + (partieCoteClient.pseudo==partieCoteServeur.joueur2.pseudo && partieCoteClient.adversaire==partieCoteServeur.joueur1));
+      console.log();
+      console.log();
+
+      return false;
+    }
+  }
+
+  function changerTour(iPartie) {
+    if(listePartie[iPartie].joueur1.id == listePartie[iPartie].tour.id){
+      listePartie[iPartie].tour.id=listePartie[iPartie].joueur2.id;
+    }
+    else {
+      listePartie[iPartie].tour.id=listePartie[iPartie].joueur1.id;
+    }
+    console.log("Maintenant au tour de " +listePartie[iPartie].tour.id);
+  };
+
+  function verifierInput(c){
+    if(c.length <= 14) return true;
+    else {
+      console.log("mauvais input");
+      console.log(c);
+      console.log(c.length);
+      return false;
+    }
+  }
+
+  function verifierTour(j, i){
+    var partieCoteServeur=listePartie[i];
+    if( partieCoteServeur.tour.id==j) return true;
+    else {
+      console.log(partieCoteServeur.tour.id);
+      console.log(j);
+      console.log("mauvais tour");
+      return false;
+    }
+  }
+
+
+
   function lancerPartie(partieCourante){
     var socktmp = socket.id;
     socket.id = null;
     partieCourante.etat = "cours";
     partieCourante.nombreIndice = 1;
     partieCourante.motADeviner = mots[Math.floor(Math.random()*1075)];
-
+    partieCourante.tour=partieCourante.joueur1;
 
     socket.broadcast.to(partieCourante.joueur1.id).emit('rdy', {
       idPartie: partieCourante.id,
       joueur: partieCourante.joueur1.pseudo,
+      jid: partieCourante.joueur1.id,
       adversaire: partieCourante.joueur2.pseudo,
       commence: 1,
       mot: partieCourante.motADeviner,
@@ -81,6 +132,7 @@ io.on('connection', function (socket) {
     socket.broadcast.to(partieCourante.joueur2.id).emit('rdy', {
       idPartie: partieCourante.id,
       joueur: partieCourante.joueur2.pseudo,
+      jid: partieCourante.joueur2.id,
       adversaire: partieCourante.joueur1.pseudo,
       mot: "",
       commence: 0,
@@ -202,60 +254,89 @@ io.on('connection', function (socket) {
   });
 
   socket.on('faire_deviner_mot', function (data) {
-
     var iPartie = trouverPartie(data.idPartie);
     if(iPartie == -1){
       console.log("SCENARIO D'ERREUR, A TRAITER");
     }
     else{
+      if(verifierPartie(data, iPartie)
+      && verifierInput(data.indice)
+    //  && verifierTour(data.jid, iPartie)
+    ) { // On verifie que les infos rentrées par l'user sont valable
       socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('recevoir_indice', data.indice);
+      //changerTour(iPartie);
     }
-  });
 
-
-  socket.on('repondre_mot', function (data) {
-    var tmp = socket.id;
-    socket.id = null;
-
-    var iPartie = trouverPartie(data.idPartie);
-    if(iPartie == -1){
-      console.log("SCENARIO D'ERREUR, A TRAITER");
+    else {
+      var tmp = socket.id;
+      socket.id =null;
+      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur2.pseudo);
+      socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur1.pseudo);
+      socket.id = tmp;
+      console.log("Scenario de triche 1");
     }
-    else{
+  }
+});
 
-      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine',data.mot);
 
-      if (listePartie[iPartie].motADeviner == data.mot) {
-        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
-        socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('gagner', listePartie[iPartie].nombreIndice);
-        listePartie[iPartie].etat = "finie";
-      }
-      else {
-        listePartie[iPartie].nombreIndice++;
-        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
-      }
-    }
-    socket.id=tmp;
-  });
+socket.on('repondre_mot', function (data) {
+  var tmp = socket.id;
+  socket.id = null;
 
-  socket.on('rejouer', function(data) {
-    var iPartie = trouverPartie(data.idPartie);
-    if(iPartie == -1){
-      console.log("SCENARIO D'ERREUR, A TRAITER");
+  var iPartie = trouverPartie(data.idPartie);
+  if(iPartie == -1){
+    console.log("SCENARIO D'ERREUR, A TRAITER");
+  }
+  else{
+
+    if(verifierPartie(data, iPartie)
+    && verifierInput(data.mot)
+  //  && verifierTour(data.jid, iPartie)
+  ) { // On verifie que les infos rentrées par l'user sont valable
+    socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine',data.mot);
+
+    if (listePartie[iPartie].motADeviner == data.mot) {
+      socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
+      socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('gagner', listePartie[iPartie].nombreIndice);
+      listePartie[iPartie].etat = "finie";
     }
     else {
-      if(listePartie[iPartie].etat == "finie") { // La partie est finie, 1 seule personne souhaite rejouer
-        listePartie[iPartie].etat = "attentedeuxiemejoueur";
+      listePartie[iPartie].nombreIndice++;
+      if (listePartie[iPartie].nombreIndice > 4 ) {
+        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('perdu', listePartie[iPartie].motADeviner);
+        socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('perdu', listePartie[iPartie].motADeviner);
       }
-      else if(listePartie[iPartie].etat == "attentedeuxiemejoueur"){ // Les 2 joueurs souhaitent rejouer
-        // On echange les roles
-        var tmp = listePartie[iPartie].joueur1;
-        listePartie[iPartie].joueur1 = listePartie[iPartie].joueur2;
-        listePartie[iPartie].joueur2 = tmp;
-        // On lance la partie
-        lancerPartie(listePartie[iPartie]);
+      else {
+        socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
+        //changerTour(iPartie);
       }
     }
-  });
+  }
+  else {
+    console.log("Scenario d'erreur 2");
+  }
+}
+socket.id=tmp;
+});
+
+socket.on('rejouer', function(data) {
+  var iPartie = trouverPartie(data.idPartie);
+  if(iPartie == -1){
+    console.log("SCENARIO D'ERREUR, A TRAITER");
+  }
+  else {
+    if(listePartie[iPartie].etat == "finie") { // La partie est finie, 1 seule personne souhaite rejouer
+      listePartie[iPartie].etat = "attentedeuxiemejoueur";
+    }
+    else if(listePartie[iPartie].etat == "attentedeuxiemejoueur"){ // Les 2 joueurs souhaitent rejouer
+      // On echange les roles
+      var tmp = listePartie[iPartie].joueur1;
+      listePartie[iPartie].joueur1 = listePartie[iPartie].joueur2;
+      listePartie[iPartie].joueur2 = tmp;
+      // On lance la partie
+      lancerPartie(listePartie[iPartie]);
+    }
+  }
+});
 
 });

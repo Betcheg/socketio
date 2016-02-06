@@ -113,10 +113,15 @@ function afficherAttente() {
   +'</div>';
 }
 
-function getMessageFin(data) {
+function getMessageGagne(data) {
 return "Félicitation! Vous avez gagné en <b>"+data+"</b> coups!!<br>"
 +"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouer()'>Rejouer contre la meme personne?</button>";
+}
 
+function getMessagePerdu(data) {
+return "Vous n'avez pas réussi à deviner le mot...<br>"
++"Il s'agissait du mot <span class='gras'>"+data+"</span> <br><br>"
++"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouer()'>Rejouer contre la meme personne?</button>";
 }
 
 function afficherInput(data, r){

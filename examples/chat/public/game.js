@@ -4,6 +4,7 @@ var texte = $('.blocktext'); // Messages area
 var indice;
 
 pseudoTmp = "visiteur"+(Math.floor(Math.random() * 1000) +1);
+var pseudoJoueur = pseudoTmp;
 
 $("#jouer").click(function() {
   //  $("#contenu").fadeOut(400,function(){
@@ -37,7 +38,10 @@ function donnerIndice(){
   indice = $('.ind');
   socket.emit('faire_deviner_mot', {
     idPartie: partieCourante.id,
-    indice: indice.val(),
+    adversaire: partieCourante.adversaire,
+    jid: partieCourante.jid,
+    pseudo: pseudoJoueur,
+    indice: indice.val()
   });
   ajouterIndiceTableau(indice.val());
   ecrireEtat(1);
@@ -48,7 +52,10 @@ function donnerReponse(){
   indice = $('.ind');
   socket.emit('repondre_mot', {
     idPartie: partieCourante.id,
-    mot: indice.val(),
+    adversaire: partieCourante.adversaire,
+    jid: partieCourante.jid,
+    pseudo: pseudoJoueur,
+    mot: indice.val()
   });
   ajouterReponseTableau(indice.val());
   ecrireEtat(1);
