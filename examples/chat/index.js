@@ -80,11 +80,14 @@ io.on('connection', function (socket) {
   }
 
   function changerTour(iPartie) {
-    if(listePartie[iPartie].joueur1.id == listePartie[iPartie].tour.id){
-      listePartie[iPartie].tour.id=listePartie[iPartie].joueur2.id;
+    if(listePartie[iPartie].joueur1==listePartie[iPartie].tour){
+      listePartie[iPartie].tour=listePartie[iPartie].joueur2;
+    }
+    else if(listePartie[iPartie].joueur2==listePartie[iPartie].tour){
+      listePartie[iPartie].tour=listePartie[iPartie].joueur1;
     }
     else {
-      listePartie[iPartie].tour.id=listePartie[iPartie].joueur1.id;
+      console.log("ERR");
     }
     console.log("Maintenant au tour de " +listePartie[iPartie].tour.id);
   };
@@ -261,10 +264,10 @@ io.on('connection', function (socket) {
     else{
       if(verifierPartie(data, iPartie)
       && verifierInput(data.indice)
-    //  && verifierTour(data.jid, iPartie)
+      && verifierTour(data.jid, iPartie)
     ) { // On verifie que les infos rentrées par l'user sont valable
       socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('recevoir_indice', data.indice);
-      //changerTour(iPartie);
+      changerTour(iPartie);
     }
 
     else {
@@ -291,7 +294,7 @@ socket.on('repondre_mot', function (data) {
 
     if(verifierPartie(data, iPartie)
     && verifierInput(data.mot)
-  //  && verifierTour(data.jid, iPartie)
+    && verifierTour(data.jid, iPartie)
   ) { // On verifie que les infos rentrées par l'user sont valable
     socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine',data.mot);
 
@@ -308,7 +311,7 @@ socket.on('repondre_mot', function (data) {
       }
       else {
         socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('donner_indice', listePartie[iPartie].nombreIndice);
-        //changerTour(iPartie);
+        changerTour(iPartie);
       }
     }
   }
