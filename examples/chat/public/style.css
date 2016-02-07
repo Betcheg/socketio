@@ -14,9 +14,12 @@
   font-weight: bold;
 }
 
+.important {
+  font-size:18px;
+}
 .error
 {
- border:1px solid red;
+ border:2px solid red;
 }
 
 #etat{

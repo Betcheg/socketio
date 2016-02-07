@@ -114,6 +114,177 @@ io.on('connection', function (socket) {
   }
 
 
+var accent={
+  "é":"e", "è":"e", "ê":"e", "ë":"e",
+  "ç":"c",
+  "à":"a", "â":"a", "ä":"a",
+  "î":"i", "ï":"i",
+  "ù":"u",
+  "ô":"o", "ó":"o", "ö":"o"};
+
+
+  var mot_interdit = [
+    "ABRUTI",
+    "ABRUTIE",
+    "BAISE",
+    "BAISÉ",
+    "BAISER",
+    "BATARD",
+    "BITE",
+    "BOUGNOUL",
+    "BRANLEUR",
+    "BURNE",
+    "CHIER",
+    "COCU",
+    "CON",
+    "CONNARD",
+    "CONNASSE",
+    "CONNE",
+    "COUILLE",
+    "COUILLON",
+    "COUILLONNE",
+    "CREVARD",
+    "CUL",
+    "ENCULE",
+    "ENCULÉ",
+    "ENCULEE",
+    "ENCULÉE",
+    "ENCULER",
+    "ENFOIRE",
+    "ENFOIRÉ",
+    "FESSE",
+    "FION",
+    "FOUTRE",
+    "M'EMMERDES",
+    "MEMMERDES",
+    "MERDE",
+    "NAZI",
+    "HITLER",
+    "HEILHITLER",
+    "NEGRE",
+    "NÈGRE",
+    "NEGRESSE",
+    "NÉGRESSE",
+    "NIQUE",
+    "NIQUER",
+    "PARTOUZE",
+    "PD",
+    "PEDE",
+    "PÉDÉ",
+    "PETASSE",
+    "PÉTASSE",
+    "PINE",
+    "POUFFE",
+    "POUFFIASSE",
+    "PUTAIN",
+    "PUTE",
+    "SALAUD",
+    "SALEJUIF",
+    "SALEARABE",
+    "SALOP",
+    "SALOPARD",
+    "SALOPE",
+    "SODOMIE",
+    "SUCER",
+    "T'ENCULE",
+    "TABARNAK",
+    "TAPETTE",
+    "TARE",
+    "TARÉ",
+    "TENCULE",
+    "TROUDUC",
+    "VAGIN",
+    "VIOL",
+    "ZOB"] ;
+
+function enleve_accent(chaine){
+  for(i in accent){
+    chaine=chaine.replace(new RegExp(i,"gi"),accent[i])
+  }
+  return chaine.toLowerCase()
+}
+
+function trouverMot(a_deviner,essaie)
+{
+  essaie=essaie.toLowerCase();
+  a_deviner=a_deviner.toLowerCase();
+  essaie = enleve_accent(essaie) ;
+  a_deviner= enleve_accent(a_deviner);
+
+  return (a_deviner===essaie);
+}
+
+// cette fonction prends en argument le mot à faire deviner et un essaie d'indice.
+function indiceValide(a_deviner,essaie)
+{
+  var valide = true;
+  a_deviner=a_deviner.toLowerCase();
+  essaie=essaie.toLowerCase();
+  var exp_reg = "";
+  for (var i=0; i < (a_deviner.length); i++ )
+  {
+    exp_reg = exp_reg.concat(a_deviner.charAt(i));
+    exp_reg = exp_reg.concat("{1,}");
+  }
+  exp_reg=exp_reg.concat("");
+
+  if (!(essaie.indexOf(" ")===-1) || !(essaie.indexOf("_")===-1) )
+  {
+    valide = false;
+  }
+
+  else
+  {
+    var re = RegExp(exp_reg);
+
+    if (re.test(essaie))
+    {
+      valide = false;
+    }
+
+    else
+    {
+      var une_difference = false;
+      var deux_difference = false;
+      var trois_difference = false;
+
+      //la on va regarder si ya au moins trois caracteres de differents :)
+      for (var i=0; i < (a_deviner.length); i++ )
+      {
+        if (!(a_deviner.charAt(i) === essaie.charAt(i)))
+        {
+          if (une_difference)
+          {
+            if (deux_difference)
+            {
+              trois_difference=true;
+            }
+
+            else
+            {
+              (deux_difference=true);
+            }
+          }
+
+          else
+          {
+            une_difference = true;
+          }
+        }
+
+      }
+      valide=trois_difference && valide;
+
+      essaie=essaie.toUpperCase();
+      if (!(mot_interdit.indexOf(essaie)=== -1))
+      {
+        valide=false;
+      }
+    }
+  }
+
+  return (valide);
+}
 
   function lancerPartie(partieCourante){
     var socktmp = socket.id;
@@ -265,6 +436,7 @@ io.on('connection', function (socket) {
       if(verifierPartie(data, iPartie)
       && verifierInput(data.indice)
       && verifierTour(data.jid, iPartie)
+      && indiceValide(data.indice,listePartie[iPartie].motADeviner)
     ) { // On verifie que les infos rentrées par l'user sont valable
       socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('recevoir_indice', data.indice);
       changerTour(iPartie);
@@ -295,10 +467,11 @@ socket.on('repondre_mot', function (data) {
     if(verifierPartie(data, iPartie)
     && verifierInput(data.mot)
     && verifierTour(data.jid, iPartie)
+
   ) { // On verifie que les infos rentrées par l'user sont valable
     socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('mot_devine',data.mot);
 
-    if (listePartie[iPartie].motADeviner == data.mot) {
+    if (trouverMot(listePartie[iPartie].motADeviner, data.mot)) {
       socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('gagner', listePartie[iPartie].nombreIndice);
       socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('gagner', listePartie[iPartie].nombreIndice);
       listePartie[iPartie].etat = "finie";
@@ -320,7 +493,7 @@ socket.on('repondre_mot', function (data) {
     var tmp = socket.id;
     socket.id =null;
     socket.broadcast.to(listePartie[iPartie].joueur1.id).emit('adversaireDeconnecte', listePartie[iPartie].joueur2.pseudo);
-    socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('tricheDetectee', listePartie[iPartie].joueur1.pseudo);
+      socket.broadcast.to(listePartie[iPartie].joueur2.id).emit('tricheDetectee', listePartie[iPartie].joueur1.pseudo);
     socket.id = tmp;
     console.log("Scenario d'erreur 2");
   }
@@ -333,6 +506,35 @@ socket.on('rejouer', function(data) {
   console.log("rejouer");
   if(iPartie == -1){
     console.log("SCENARIO D'ERREUR, A TRAITER");
+    // Si la partie n'est pas trouvée c'est qu'elle a été dissoute. On remet alors le joueur dans la file
+  /*  if(joueurAttente.length == 0){
+      var joueurCourant = {
+        id: socket.id,
+        pseudo: username,
+      }
+      joueurAttente.push(joueurCourant);
+    }
+    else {
+
+      var joueurCourant = {
+        id: socket.id,
+        pseudo: username,
+      }
+      socket.id = null;
+
+      // Preparation des informations de la partie
+      var partieCourante = {
+        id: getRandomId(),
+        joueur1: joueurAttente.shift(),
+        joueur2: joueurCourant,
+        motADeviner: "",
+        nombreIndice: 1,
+        etat: "cours", // Cours, Finie
+        libre: false
+      }
+      // Ajout de la partie à la liste des parties en cours
+      listePartie.push(partieCourante);
+    } */
   }
   else {
     if(listePartie[iPartie].etat == "finie") { // La partie est finie, 1 seule personne souhaite rejouer

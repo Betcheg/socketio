@@ -11,7 +11,7 @@ socket.on('rdy', function (data) {
   if(data.commence == 1) {
     ecrireEtat(0); // A vous de jouer
     ecrireMotAFaireDeviner(data.mot);
-
+    partieCourante.motADeviner=data.mot;
   }
   else {
     ecrireEtat(1); // En attente
@@ -46,7 +46,7 @@ socket.on('adversaireDeconnecte', function (data) {
   +"<br><br>"
   +"<button class='btnrejouer btn btn-sm btn-info active' onClick='rejouerFile()'>Rejouer</button>");
   }
-  
+
   ecrireEtat(3);
   effacerTMP();
 });
