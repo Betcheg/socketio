@@ -35,7 +35,7 @@ function setUsername (un) {
 
 function donnerIndice(){
   indice = $('.ind');
-  if(indice.val().length > 2 && legal(indice.val()) && indiceValide(indice.val(), partieCourante.motADeviner)){
+  if(indice.val().length > 2 && legal(indice.val()) && indiceValide(partieCourante.motADeviner,indice.val())){
     socket.emit('faire_deviner_mot', {
       idPartie: partieCourante.id,
       adversaire: partieCourante.adversaire,
