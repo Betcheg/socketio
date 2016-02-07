@@ -1,3 +1,14 @@
+  $( "#btn_menu" ).click(function() {
+    //$("#contenu").toggleClass('cbp-spmenu-push-toright');
+    $( "#menu" ).toggleClass( 'cbp-spmenu-open' );
+  });
+
+  $( "#btn_menu_close" ).click(function() {
+    //$("#contenu").toggleClass('cbp-spmenu-push-toright');
+    $( "#menu" ).toggleClass( 'cbp-spmenu-open' );
+  });
+
+
 function preparerContenu(){
   $("#contenu").html("<div id='adversaire'></div>"
   +"<div id='etat'></div>"

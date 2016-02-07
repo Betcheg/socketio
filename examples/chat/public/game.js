@@ -159,13 +159,13 @@ function indiceValide(a_deviner,essaie)
   var valide = true;
   a_deviner=a_deviner.toLowerCase();
   essaie=essaie.toLowerCase();
-  var exp_reg = "";
+  var exp_reg = "^(.*)";
   for (var i=0; i < (a_deviner.length); i++ )
   {
     exp_reg = exp_reg.concat(a_deviner.charAt(i));
     exp_reg = exp_reg.concat("{1,}");
   }
-  exp_reg=exp_reg.concat("");
+  exp_reg=exp_reg.concat("(.*)$");
 
   if (!(essaie.indexOf(" ")===-1) || !(essaie.indexOf("_")===-1) )
   {
